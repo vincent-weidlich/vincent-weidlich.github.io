@@ -1,0 +1,23 @@
+{
+  "name": "Vincent Weidlich",
+  "default_url": "https://vincent-weidlich.github.io/",
+  "description": "Selected publications by Vincent Weidlich on artificial intelligence in medicine, radiation oncology, thermal infrared imaging and decision theory.",
+  "google_site_verification": "",
+  "profiles": [
+    {
+      "label": "Cureus",
+      "url": "https://www.cureus.com/users/56060-vincent-weidlich"
+    },
+    {
+      "label": "GitHub",
+      "url": "https://github.com/vincent-weidlich"
+    }
+  ],
+  "selected_dois": [
+    "10.7759/cureus.2475",
+    "10.7759/cureus.4882",
+    "10.7759/cureus.9923",
+    "10.7759/cureus.13736"
+  ],
+  "indexnow_key": "6d6a0dc6f64339812f312a18c2a97b37"
+}

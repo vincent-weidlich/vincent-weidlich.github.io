@@ -1,0 +1,13 @@
+{
+  "base_url": "http://127.0.0.1:8766/",
+  "pages": {
+    "": "b4a4ae0953b4605822009d6a0a954cd8dff896a8e417bb7f3fc0b98fa0caf91e",
+    "de/": "70de0e2c400b6d467a0a33369d7683265941b7e2857bb5a1291caa85999edd4d",
+    "publications/": "d6fed6e2772496a53c8e1e41453a5cbac8c7d39febb6253d11a734fca3fc9e6b",
+    "publications/ai-medicine-radiation-oncology/": "65bd9e4e9a6a36047e2b4765fb1f99ddad6134990e1c512f07ca25ec6fadf231",
+    "publications/fan-beam-ct-radiotherapy/": "636bdcc08f29722fa4b499c430fe7deccf1579ce073cd1aeb1fe4dac06de71db",
+    "publications/quantum-decision-theory-risk-taking/": "fcacea9d3d9f596b3bc608266ffa4b7b59e0b0f6fe48bce1a20945ef9d23c0fd",
+    "publications/thermal-infrared-face-recognition/": "714e680f7f9e10f0a49eb016f70391faa5ecf06d3d6670ef0cc89101cc126962",
+    "ru/": "2925ac76260e22200b8d7ef403291519a85fd490037afe41e335187e5b2547af"
+  }
+}
