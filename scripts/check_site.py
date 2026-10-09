@@ -7,6 +7,7 @@ import os
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlparse
 from xml.etree import ElementTree as ET
+from build_site import google_verification
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -55,10 +56,13 @@ def main():
     site = json.loads((ROOT/'data/site.json').read_text())
     papers = json.loads((ROOT/'data/publications.json').read_text())
     selected = set(site['selected_dois'])
-    token = os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip() or site.get('google_site_verification', '')
+    token, verification_file = google_verification(site)
     out = ROOT/'dist'
     expected_paths = {'index.html', 'publications/index.html', 'de/index.html', 'ru/index.html', '404.html'} | {'publications/'+p['slug']+'/index.html' for p in papers}
     actual_paths = {str(p.relative_to(out)) for p in out.rglob('*.html')}
+    if verification_file:
+        assert (out/verification_file).read_text() == 'google-site-verification: '+verification_file, 'Google verification file mismatch'
+        actual_paths.discard(verification_file)
     assert actual_paths == expected_paths, 'Unexpected or missing HTML pages'
     expected_urls = set()
     scholarly_dois = set()

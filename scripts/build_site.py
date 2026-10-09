@@ -21,6 +21,16 @@ def esc(value):
     return html.escape(str(value), quote=True)
 
 
+def google_verification(site):
+    """Accept a meta-tag token or Google's standard verification-file name."""
+    value = os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip() or site.get('google_site_verification', '').strip()
+    if re.fullmatch(r'google[a-f0-9]{16,64}\.html', value):
+        return '', value
+    if value and not re.fullmatch(r'[A-Za-z0-9_-]+', value):
+        raise ValueError('Use the Google HTML tag content value or the google...html verification filename; do not paste a full tag or path.')
+    return value, None
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--base-url', default=os.environ.get('SITE_URL', 'http://127.0.0.1:8766/'))
@@ -40,9 +50,7 @@ def main():
     slugs = [p['slug'] for p in papers]
     if len(set(slugs)) != len(slugs) or not all(re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', s) for s in slugs):
         raise ValueError('Publication slugs must be unique, safe URL segments.')
-    token = os.environ.get('GOOGLE_SITE_VERIFICATION', '').strip() or site.get('google_site_verification', '').strip()
-    if token and not re.fullmatch(r'[A-Za-z0-9_-]+', token):
-        raise ValueError('Use only the Google HTML tag content value, not the entire tag.')
+    token, verification_file = google_verification(site)
     # This directory is generated only. Cleaning prevents old publications surviving a build.
     if OUT.is_symlink():
         raise ValueError('dist must not be a symbolic link')
@@ -51,6 +59,10 @@ def main():
     (OUT / 'assets').mkdir(parents=True)
     shutil.copyfile(ROOT / 'assets/style.css', OUT / 'assets/style.css')
     (OUT / '.nojekyll').write_text('')
+    if verification_file:
+        # Matches Google's downloaded single-line verification file exactly.
+        # This ownership resource is deliberately absent from the sitemap.
+        (OUT / verification_file).write_text('google-site-verification: ' + verification_file, encoding='utf-8')
     routes = []
 
     def url(path=''):
