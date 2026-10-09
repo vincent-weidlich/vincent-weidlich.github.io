@@ -1,0 +1,56 @@
+name: Deploy research website
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: github-pages
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Get website source
+        uses: actions/checkout@v6
+      - name: Read GitHub Pages address
+        id: pages
+        uses: actions/configure-pages@v5
+      - name: Build website
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+        run: python3 scripts/build_site.py --production
+      - name: Check generated website
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+          GOOGLE_SITE_VERIFICATION: ${{ vars.GOOGLE_SITE_VERIFICATION }}
+        run: python3 scripts/check_site.py --production
+      - name: Upload website files
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: dist
+      - name: Read previous website content for change notifications
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: python3 scripts/notify_indexnow.py snapshot
+      - name: Publish website
+        id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Notify IndexNow about changed pages
+        continue-on-error: true
+        env:
+          SITE_URL: ${{ steps.pages.outputs.base_url }}
+        run: python3 scripts/notify_indexnow.py notify --submit
