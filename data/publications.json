@@ -2,7 +2,10 @@
   {
     "slug": "ai-medicine-radiation-oncology",
     "title": "Artificial Intelligence in Medicine and Radiation Oncology",
-    "authors": ["Vincent Weidlich", "Georg A Weidlich"],
+    "authors": [
+      "Vincent Weidlich",
+      "Georg A Weidlich"
+    ],
     "date": "2018-04-13",
     "journal": "Cureus",
     "volume": "10",
@@ -14,12 +17,47 @@
     "topic": "AI & radiation oncology",
     "type": "Review",
     "summary": "A review of potential applications of artificial intelligence in radiation oncology, particularly workflow efficiency and error reduction. It discusses automated data transfer and decision support as ways to improve clinical operations.",
-    "scope": "This is a literature review of potential applications, rather than a clinical trial of a specific AI system."
+    "scope": "This is a literature review of potential applications, rather than a clinical trial of a specific AI system.",
+    "author_names": [
+      {
+        "given": "Vincent",
+        "family": "Weidlich"
+      },
+      {
+        "given": "Georg A",
+        "family": "Weidlich"
+      }
+    ],
+    "abstract": [
+      "Artifical Intelligence (AI) was reviewed with a focus on its potential applicability to radiation oncology. The improvement of process efficiencies and the prevention of errors were found to be the most significant contributions of AI to radiation oncology. It was found that the prevention of errors is most effective when data transfer processes were automated and operational decisions were based on logical or learned evaluations by the system. It was concluded that AI could greatly improve the efficiency and accuracy of radiation oncology operations."
+    ],
+    "license": {
+      "name": "CC BY 3.0",
+      "url": "https://creativecommons.org/licenses/by/3.0/",
+      "copyright": "Copyright © 2018, Weidlich et al."
+    },
+    "pdf_file": "cureus-2475.pdf",
+    "pdf_sha256": "6c24ba71e08e327795d1158f854d8d7c4b22d5cc6ba2579efec05fe9cba6e231",
+    "source_checked": "2026-10-09",
+    "pmid": "29904616",
+    "pmcid": "PMC5999390",
+    "europe_pmc_url": "https://europepmc.org/article/MED/29904616",
+    "scienceopen_url": "https://www.scienceopen.com/document?vid=4bc0f91b-5865-4b1e-8892-83ac2100b564",
+    "abstract_license": {
+      "name": "CC BY 3.0",
+      "url": "https://creativecommons.org/licenses/by/3.0/"
+    }
   },
   {
     "slug": "fan-beam-ct-radiotherapy",
     "title": "Concept for a Fan-beam Computed Tomography Image-guided Radiotherapy Device",
-    "authors": ["Vincent Weidlich", "Lawrence Lechuga", "Dennis Dore", "Georg A Weidlich", "Bill Nighan"],
+    "authors": [
+      "Vincent Weidlich",
+      "Lawrence Lechuga",
+      "Dennis Dore",
+      "Georg A Weidlich",
+      "Bill Nighan"
+    ],
     "date": "2019-06-11",
     "journal": "Cureus",
     "volume": "11",
@@ -31,12 +69,55 @@
     "topic": "Image-guided radiotherapy",
     "type": "Device concept",
     "summary": "A proposed radiotherapy device combines a 6 MV linear accelerator with fan-beam CT guidance. The paper describes the Simple XRT concept and considers equipment cost and shielding requirements in the design of a treatment system.",
-    "scope": "The article presents a device concept. This summary does not establish current commercial availability, regulatory approval or clinical effectiveness."
+    "scope": "The article presents a device concept. This summary does not establish current commercial availability, regulatory approval or clinical effectiveness.",
+    "author_names": [
+      {
+        "given": "Vincent",
+        "family": "Weidlich"
+      },
+      {
+        "given": "Lawrence",
+        "family": "Lechuga"
+      },
+      {
+        "given": "Dennis",
+        "family": "Dore"
+      },
+      {
+        "given": "Georg A.",
+        "family": "Weidlich"
+      },
+      {
+        "given": "Bill",
+        "family": "Nighan"
+      }
+    ],
+    "abstract": [
+      "Many advancements taking place in the field of radiation therapy come in the form of increasingly powerful devices and specialized treatments that aim to increase precision, visualization, and facility throughput. Although these devices are very effective at their respective roles within radiotherapy, they are expensive and require specialized vaults to shield the public and the radiation worker from the ionizing radiation. A proposed device, known as the Simple XRT, is designed to circumvent the inherent drawbacks of the current devices. The Simple XRT uses a 6 MV linear accelerator that utilizes diagnostic quality computed tomography (CT) image guidance. Simple XRT will serve as a cost-effective device for treating most cancer indications."
+    ],
+    "license": {
+      "name": "CC BY 3.0",
+      "url": "https://creativecommons.org/licenses/by/3.0/",
+      "copyright": "Copyright © 2019, Weidlich et al."
+    },
+    "pdf_file": "cureus-4882.pdf",
+    "pdf_sha256": "34636e0e855139ebfd11a5bc52d4b23c5fc1eb868d436f3cdfd7b3cc83a70c83",
+    "source_checked": "2026-10-09",
+    "pmid": "31417827",
+    "pmcid": "PMC6687473",
+    "europe_pmc_url": "https://europepmc.org/article/MED/31417827",
+    "scienceopen_url": "https://www.scienceopen.com/document?vid=7a208be5-9aee-4db2-8a17-ec8827bbccd9",
+    "abstract_license": {
+      "name": "CC BY 3.0",
+      "url": "https://creativecommons.org/licenses/by/3.0/"
+    }
   },
   {
     "slug": "quantum-decision-theory-risk-taking",
     "title": "Personality and Genetics Correlations to Risk-Taking Using Quantum Decision Theory in Balloon Analogue Risk Tasks",
-    "authors": ["Vincent A Weidlich"],
+    "authors": [
+      "Vincent A Weidlich"
+    ],
     "date": "2020-08-21",
     "journal": "Cureus",
     "volume": "12",
@@ -48,12 +129,40 @@
     "topic": "Decision theory",
     "type": "Review",
     "summary": "A review connecting quantum decision theory with research on risk-taking in the Balloon Analogue Risk Task. It considers reported personality and genetic associations, and proposes ways to incorporate these factors into probabilistic decision models.",
-    "scope": "The article reviews existing work and proposes models; these proposals should be distinguished from independently validated predictions for individuals."
+    "scope": "The article reviews existing work and proposes models; these proposals should be distinguished from independently validated predictions for individuals.",
+    "author_names": [
+      {
+        "given": "Vincent A",
+        "family": "Weidlich"
+      }
+    ],
+    "abstract": [
+      "Genetics and personality can be determined and assessed in individuals, which can be used to predict behaviours in large groups and possibly individually. This report will describe how to use quantum decision theory (QDT) to predict these behaviours. Genetics and personality correlations to risk-taking using QDT in balloon analogue risk tasks (BART) will be covered in this report. The areas of theory covered will be BART, QDT, QDT in BART, personality correlations to risk-taking in BART, genetic correlations to risk-taking in BART, the models used in these theories and a presentation of new models to use these theories together.",
+      "This article reviews many other primary research articles, which analyses the correlation between genetics/personality and risk-taking behaviour in BART. This report provides models that use impulsivity, venturesomeness, and genetic traits with QDT, to probabilistically predict decisions in risk-taking behaviour."
+    ],
+    "license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "copyright": "Copyright © 2020, Weidlich et al."
+    },
+    "pdf_file": "cureus-9923.pdf",
+    "pdf_sha256": "36e2ca40ccd2a42a43bfd0d297ceab9d7418ae4a3efb1442ed2da272f4fad4bd",
+    "source_checked": "2026-10-09",
+    "pmid": "32968584",
+    "pmcid": "PMC7505615",
+    "europe_pmc_url": "https://europepmc.org/article/MED/32968584",
+    "scienceopen_url": "https://www.scienceopen.com/document?vid=24e35e73-de80-4d8f-a624-1603f40c62dc",
+    "abstract_license": {
+      "name": "CC BY 3.0",
+      "url": "https://creativecommons.org/licenses/by/3.0/"
+    }
   },
   {
     "slug": "thermal-infrared-face-recognition",
     "title": "Thermal Infrared Face Recognition",
-    "authors": ["Vincent A Weidlich"],
+    "authors": [
+      "Vincent A Weidlich"
+    ],
     "date": "2021-03-06",
     "journal": "Cureus",
     "volume": "13",
@@ -65,6 +174,31 @@
     "topic": "Thermal imaging",
     "type": "Review",
     "summary": "A review of thermal infrared approaches to face recognition, including temperature patterns, facial vasculature and computational methods. It surveys earlier work on imaging characteristics and the use of machine learning in this field.",
-    "scope": "This is a review of published methods, rather than a release of a new facial recognition product or dataset."
+    "scope": "This is a review of published methods, rather than a release of a new facial recognition product or dataset.",
+    "author_names": [
+      {
+        "given": "Vincent A",
+        "family": "Weidlich"
+      }
+    ],
+    "abstract": [
+      "The technology for deep learning in the field of thermal infrared face recognition has recently become more available for use in research, therefore allowing for the many groups working on this subject to achieve many novel findings. Thermal infrared face recognition helps recognize faces that are not able to be recognized in visible light and can additionally recognize facial blood vessel structure. Previous research regarding temperature variations, mathematical formulas, wave types, and methods in thermal infrared face recognition is reviewed."
+    ],
+    "license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/",
+      "copyright": "Copyright © 2021, Weidlich et al."
+    },
+    "pdf_file": "cureus-13736.pdf",
+    "pdf_sha256": "d33185cbf5b5d0852f5d4d74d1b60328a1438927a2683ae9a69e28468461de9f",
+    "source_checked": "2026-10-09",
+    "pmid": "33842114",
+    "pmcid": "PMC8021210",
+    "europe_pmc_url": "https://europepmc.org/article/MED/33842114",
+    "scienceopen_url": "https://www.scienceopen.com/document?vid=13023703-e629-4dcd-b24d-72903422aa25",
+    "abstract_license": {
+      "name": "CC BY 4.0",
+      "url": "https://creativecommons.org/licenses/by/4.0/"
+    }
   }
 ]
