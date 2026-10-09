@@ -3,7 +3,9 @@
 import argparse
 from html.parser import HTMLParser
 import json
+import hashlib
 import os
+import re
 from pathlib import Path
 from urllib.parse import unquote, urljoin, urlparse
 from xml.etree import ElementTree as ET
@@ -17,6 +19,8 @@ class Document(HTMLParser):
         super().__init__()
         self.links, self.canonicals, self.robots, self.verification, self.jsonld = [], [], [], [], []
         self.h1 = 0
+        self.citations = {}
+        self.text = []
         self.active_json = None
         self.feed(text)
 
@@ -32,12 +36,16 @@ class Document(HTMLParser):
             self.robots.append(attrs.get('content', ''))
         if tag == 'meta' and attrs.get('name') == 'google-site-verification':
             self.verification.append(attrs.get('content', ''))
+        if tag == 'meta' and attrs.get('name','').startswith('citation_'):
+            self.citations.setdefault(attrs['name'], []).append(attrs.get('content',''))
         if tag == 'h1':
             self.h1 += 1
         if tag == 'script' and attrs.get('type') == 'application/ld+json':
             self.active_json = ''
 
     def handle_data(self, data):
+        if self.active_json is None:
+            self.text.append(data)
         if self.active_json is not None:
             self.active_json += data
 
@@ -92,6 +100,29 @@ def main():
                     target = target/'index.html'
                 assert target.is_file(), f'Broken local link: {link} in {relative}'
     assert scholarly_dois == selected, 'Missing selected publication detail metadata'
+    for p in papers:
+        doc = Document((out/'publications'/p['slug']/'index.html').read_text())
+        expected = {'citation_title':[p['title']], 'citation_author':p['authors'], 'citation_doi':[p['doi']], 'citation_publication_date':[p['date'].replace('-','/')], 'citation_journal_title':[p['journal']], 'citation_volume':[p['volume']], 'citation_issue':[p['issue']], 'citation_firstpage':[p['article_number']], 'citation_pmid':[p['pmid']], 'citation_pdf_url':[base+'assets/'+p['pdf_file']]}
+        assert doc.citations == expected, 'Scholarly citation metadata mismatch: '+p['doi']
+        visible = ' '.join(' '.join(doc.text).split())
+        assert all(paragraph in visible for paragraph in p['abstract']), 'Missing original abstract: '+p['doi']
+        assert p['license']['url'] in doc.links, 'Missing reuse license'
+        pdf = (out/'assets'/p['pdf_file']).read_bytes()
+        assert pdf.startswith(b'%PDF-') and hashlib.sha256(pdf).hexdigest() == p['pdf_sha256'], 'PDF differs from verified original'
+        for ext in ('bib','ris'):
+            citation = (out/'publications'/p['slug']/('citation.'+ext)).read_text()
+            assert p['doi'] in citation and p['title'] in citation, 'Missing individual citation'
+    bib = (out/'selected-publications.bib').read_text()
+    ris = (out/'selected-publications.ris').read_text()
+    assert set(re.findall(r'doi = \{([^}]+)\}',bib)) == selected and bib.count('@article{') == len(selected), 'BibTeX selection mismatch'
+    assert set(re.findall(r'^DO  - (.+)$',ris,re.M)) == selected and ris.count('TY  - JOUR') == len(selected), 'RIS selection mismatch'
+    assert (out/'selected-dois.txt').read_text().splitlines() == [p['doi'] for p in papers], 'DOI submission list mismatch'
+    from notify_indexnow import validate_manifest
+    manifest = validate_manifest(json.loads((out/'indexnow-manifest.json').read_text()),base)
+    assert set(manifest) == {u.removeprefix(base) for u in expected_urls} | {'assets/'+p['pdf_file'] for p in papers}, 'IndexNow URL selection mismatch'
+    for relative, digest in manifest.items():
+        resource = out/relative if relative.endswith('.pdf') else out/relative/'index.html'
+        assert hashlib.sha256(resource.read_bytes()).hexdigest() == digest, 'IndexNow hash mismatch'
     ns = {'s': 'http://www.sitemaps.org/schemas/sitemap/0.9'}
     urls = [n.text for n in ET.parse(out/'sitemap.xml').findall('.//s:loc', ns)]
     assert len(urls) == len(set(urls)) and set(urls) == expected_urls, 'Sitemap route mismatch'
@@ -102,7 +133,7 @@ def main():
         assert 'Disallow: /' not in (out/'robots.txt').read_text(), 'Production robots blocks crawling'
         assert base+'sitemap.xml' in (out/'robots.txt').read_text()
     assert not any(p.suffix in ('.py', '.md') for p in out.rglob('*')), 'Source files in deployment'
-    print(f'PASS: {len(actual_paths)} pages; internal links; canonical URLs; sitemap; {len(selected)} selected records; Google verification; indexing mode.')
+    print(f'PASS: {len(actual_paths)} pages; internal links; canonical URLs; sitemap; {len(selected)} selected records; original abstracts and PDF checksums; Scholar metadata; citation exports; Google verification; indexing mode.')
 
 
 if __name__ == '__main__':

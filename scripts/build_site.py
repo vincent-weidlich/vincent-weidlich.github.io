@@ -71,7 +71,7 @@ def main():
     def a(path, label, cls=''):
         return f'<a href="{esc(path)}"' + (f' class="{esc(cls)}"' if cls else '') + f'>{esc(label)}</a>'
 
-    def page(path, title, description, body, lang='en', schema=None, translated=False, index=True):
+    def page(path, title, description, body, lang='en', schema=None, translated=False, index=True, citations=None):
         canonical = url(path)
         head = f'<meta name="description" content="{esc(description)}"><link rel="canonical" href="{esc(canonical)}">'
         if not args.production or not index:
@@ -82,9 +82,9 @@ def main():
             for code, route in [('en', ''), ('de', 'de/'), ('ru', 'ru/'), ('x-default', '')]:
                 head += f'<link rel="alternate" hreflang="{code}" href="{esc(url(route))}">'
         if schema:
-            # These are summaries of existing articles, not republished full-text papers.
-            # Do not mislabel them as new scholarly publications or fabricate PDF metadata.
             head += '<script type="application/ld+json">' + json.dumps(schema, ensure_ascii=False).replace('<', '\\u003c') + '</script>'
+        if citations:
+            head += ''.join(f'<meta name="{esc(name)}" content="{esc(value)}">' for name, value in citations)
         favicon = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"%3E%3Crect width="64" height="64" rx="12" fill="%23006974"/%3E%3Ctext x="32" y="44" text-anchor="middle" fill="white" font-family="Georgia" font-size="34"%3EV%3C/text%3E%3C/svg%3E'
         navigation = a(url(), 'Overview') + a(url('publications/'), 'Publications') + a(url('de/'), 'Deutsch') + a(url('ru/'), 'Русский')
         document = f'''<!doctype html>
@@ -102,7 +102,7 @@ def main():
         rows = []
         for p in items:
             text = f'<p>{esc(p["summary"])}</p>' if summaries else ''
-            rows.append(f'<li class="paper-row"><div class="year">{p["date"][:4]}</div><div><p class="meta">{esc(p["topic"])} · {esc(p["type"])}</p><h3>{a(url("publications/"+p["slug"]+"/"),p["title"])}</h3>{text}<div class="links">{a(url("publications/"+p["slug"]+"/"),"Paper summary")}{a("https://doi.org/"+p["doi"],"DOI: "+p["doi"])}</div></div></li>')
+            rows.append(f'<li class="paper-row"><div class="year">{p["date"][:4]}</div><div><p class="meta">{esc(p["topic"])} · {esc(p["type"])}</p><h3>{a(url("publications/"+p["slug"]+"/"),p["title"])}</h3>{text}<div class="links">{a(url("publications/"+p["slug"]+"/"),"Abstract & details")}{a(url("assets/"+p["pdf_file"]),"Full paper (PDF)")}{a("https://doi.org/"+p["doi"],"DOI: "+p["doi"])}</div></div></li>')
         return '<ol class="paper-list">'+''.join(rows)+'</ol>'
 
     profiles = '<div class="links">' + ''.join(a(p['url'], p['label']) for p in site['profiles']) + '</div>'
@@ -112,14 +112,41 @@ def main():
     home += '<section class="profile-strip"><h2>Research profiles</h2>'+profiles+'</section>'
     page('', site['name']+' | AI & Radiation Oncology Research', site['description'], home, schema={'@context':'https://schema.org','@type':'ProfilePage','mainEntity':person}, translated=True)
 
-    collection = '<header class="page-head"><p class="eyebrow">Bibliography</p><h1>Selected publications</h1><p class="intro">Research articles and reviews, with short summaries and links to the original publication records.</p>'+a(url('selected-publications.csv'), 'Download selected citations (CSV)', 'download')+'</header><section class="section">'+listing(sorted(papers,key=lambda p:p['date'],reverse=True), True)+'</section>'
+    downloads = '<div class="links">' + ''.join(a(url('selected-publications.'+ext), label, 'download') for ext, label in [('bib','BibTeX citations'),('ris','RIS citations'),('csv','CSV citations')]) + '</div>'
+    collection = '<header class="page-head"><p class="eyebrow">Bibliography</p><h1>Selected publications</h1><p class="intro">Original abstracts, open-access full papers and publication records.</p>'+downloads+'</header><section class="section">'+listing(sorted(papers,key=lambda p:p['date'],reverse=True), True)+'</section>'
     page('publications/', 'Selected Publications | '+site['name'], 'Selected publications by Vincent Weidlich, with original DOI links, publication dates and summaries.', collection)
     for p in papers:
+        if not re.fullmatch(r'cureus-[0-9]+\.pdf', p['pdf_file']):
+            raise ValueError('Invalid PDF asset filename')
+        pdf = ROOT / 'assets' / p['pdf_file']
+        if not pdf.read_bytes().startswith(b'%PDF-') or hashlib.sha256(pdf.read_bytes()).hexdigest() != p['pdf_sha256']:
+            raise ValueError('Original PDF missing or checksum mismatch: '+p['doi'])
+        shutil.copyfile(pdf, OUT / 'assets' / p['pdf_file'])
         reference = f'{p["journal"]}. {p["date"][:4]};{p["volume"]}({p["issue"]}):{p["article_number"]}.'
-        body = '<header class="page-head"><p class="eyebrow">'+esc(p['topic'])+'</p><h1>'+esc(p['title'])+'</h1><p class="authors">'+esc('; '.join(p['authors']))+'</p></header>'
-        body += '<article class="reading"><dl class="details"><dt>Published</dt><dd>'+esc(p['date'])+'</dd><dt>Journal</dt><dd>'+esc(reference)+'</dd><dt>DOI</dt><dd>'+a('https://doi.org/'+p['doi'],p['doi'])+'</dd></dl><h2>Paper summary</h2><p>'+esc(p['summary'])+'</p><p class="scope">'+esc(p['scope'])+'</p><h2>Read the research</h2><p>This page summarizes the publication. Consult the original article for its methods, references and full conclusions.</p><div class="links">'+a(p['record_url'],'PubMed record')+a(p['full_text_url'],'Full text on PubMed Central')+'</div>'+a(url('publications/'),'All selected publications','back')+'</article>'
+        body = '<header class="page-head publication-head"><h1>'+esc(p['title'])+'</h1><p class="authors">'+esc('; '.join(p['authors']))+'</p><p class="meta">'+esc(reference)+' · '+esc(p['date'])+'</p></header>'
+        body += '<article class="reading"><section aria-labelledby="abstract"><h2 id="abstract">Abstract</h2>'+''.join('<p>'+esc(paragraph)+'</p>' for paragraph in p['abstract'])+'</section>'
+        body += '<div class="links">'+a(url('assets/'+p['pdf_file']),'Read full paper (PDF)','download')+a('https://doi.org/'+p['doi'],'Original publication · '+p['doi'])+'</div>'
+        body += '<p class="attribution">Original abstract: '+a(p['abstract_license']['url'],p['abstract_license']['name'])+'. Unmodified published PDF: '+a(p['license']['url'],p['license']['name'])+'. '+esc(p['license']['copyright'])+' Source: '+a(p['full_text_url'],'PubMed Central, U.S. National Library of Medicine')+'; retrieved '+esc(p['source_checked'])+'. Check the original record for subsequent updates.</p>'
+        body += '<h2>Research summary</h2><p>'+esc(p['summary'])+'</p><p class="scope">'+esc(p['scope'])+'</p><h2>Publication records</h2><div class="links">'+a(p['record_url'],'PubMed')+a(p['full_text_url'],'PubMed Central')+a(p['europe_pmc_url'],'Europe PMC')+a(p['scienceopen_url'],'ScienceOpen')+'</div><h2>Cite this paper</h2><div class="links">'+a(url('publications/'+p['slug']+'/citation.bib'),'BibTeX')+a(url('publications/'+p['slug']+'/citation.ris'),'RIS')+'</div>'+a(url('publications/'),'All selected publications','back')+'</article>'
         scholarly = {'@type':'ScholarlyArticle','@id':'https://doi.org/'+p['doi'],'name':p['title'],'identifier':p['doi'],'url':'https://doi.org/'+p['doi'],'datePublished':p['date'],'author':[{'@type':'Person','name':n} for n in p['authors']],'isPartOf':{'@type':'Periodical','name':p['journal']}}
-        page('publications/'+p['slug']+'/',p['title']+' | '+site['name'],p['summary'],body,schema={'@context':'https://schema.org','@type':'WebPage','name':p['title']+' — paper summary','about':scholarly})
+        scholarly.update({'abstract':'\n\n'.join(p['abstract']),'license':p['license']['url'],'encoding':{'@type':'MediaObject','contentUrl':url('assets/'+p['pdf_file']),'encodingFormat':'application/pdf'}})
+        citations = [('citation_title',p['title'])] + [('citation_author',n) for n in p['authors']] + [('citation_publication_date',p['date'].replace('-','/')),('citation_journal_title',p['journal']),('citation_volume',p['volume']),('citation_issue',p['issue']),('citation_firstpage',p['article_number']),('citation_doi',p['doi']),('citation_pmid',p['pmid']),('citation_pdf_url',url('assets/'+p['pdf_file']))]
+        page('publications/'+p['slug']+'/',p['title']+' | '+site['name'],p['summary'],body,schema={'@context':'https://schema.org','@type':'WebPage','name':p['title'],'about':scholarly},citations=citations)
+
+    # Preserve the original identifiers and dates when exporting existing publications.
+    def bibtex(p):
+        fields = {'title':'{'+p['title']+'}', 'author':' and '.join(n['family']+', '+n['given'] for n in p['author_names']), 'journal':p['journal'], 'year':p['date'][:4], 'volume':p['volume'], 'number':p['issue'], 'pages':p['article_number'], 'doi':p['doi'], 'url':'https://doi.org/'+p['doi']}
+        return '@article{Weidlich'+p['date'][:4]+p['article_number']+',\n'+',\n'.join('  '+k+' = {'+str(v)+'}' for k,v in fields.items())+'\n}\n'
+
+    def ris(p):
+        fields = [('TY','JOUR'),('TI',p['title'])]+[('AU',n['family']+', '+n['given']) for n in p['author_names']]+[('JO',p['journal']),('PY',p['date'][:4]),('DA',p['date'].replace('-','/')),('VL',p['volume']),('IS',p['issue']),('SP',p['article_number']),('DO',p['doi']),('UR','https://doi.org/'+p['doi']),('ER','')]
+        return '\n'.join(k+'  - '+v for k,v in fields)+'\n'
+
+    for ext, render in [('bib',bibtex),('ris',ris)]:
+        (OUT/('selected-publications.'+ext)).write_text('\n'.join(render(p) for p in papers),encoding='utf-8')
+        for p in papers:
+            (OUT/'publications'/p['slug']/('citation.'+ext)).write_text(render(p),encoding='utf-8')
+    (OUT/'selected-dois.txt').write_text('\n'.join(p['doi'] for p in papers)+'\n',encoding='utf-8')
 
     translations = {
         'de': ('Forschung und Publikationen','Ausgewählte Publikationen','Die veröffentlichten Arbeiten von Vincent Weidlich befassen sich mit künstlicher Intelligenz in der Medizin, Strahlentherapie, thermischer Infrarotbildgebung und Entscheidungstheorie.','Die folgenden Titel stehen in ihrer ursprünglichen englischen Fassung. Die verlinkten Seiten enthalten englische Zusammenfassungen und Links zu den Originalartikeln.'),
@@ -152,6 +179,8 @@ def main():
     for route in routes:
         relative = route.removeprefix(base)
         manifest[relative] = hashlib.sha256((OUT/relative/'index.html').read_bytes()).hexdigest()
+    for p in papers:
+        manifest['assets/'+p['pdf_file']] = p['pdf_sha256']
     (OUT/'indexnow-manifest.json').write_text(json.dumps({'base_url':base,'pages':manifest},sort_keys=True,indent=2)+'\n')
     print(f'Built {len(routes)} indexable routes and a 404 page in {OUT}')
     print(f'Base URL: {base}; mode: '+('production' if args.production else 'local preview (noindex)'))

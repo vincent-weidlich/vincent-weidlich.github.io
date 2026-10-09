@@ -23,14 +23,17 @@ def fetch(url):
     with urlopen(Request(url, headers={'User-Agent':'ResearchWebsiteDeployment/1.0','Cache-Control':'no-cache'}), timeout=15) as response:
         if response.url != url:
             raise ValueError('Unexpected redirect: confirm the canonical website address before notifying.')
-        return response.read(2_000_000)
+        content = response.read(5_000_001)
+        if len(content) > 5_000_000:
+            raise ValueError('Resource exceeds the supported 5 MB size limit.')
+        return content
 
 
 def validate_manifest(manifest, base):
     if manifest.get('base_url') != base or not isinstance(manifest.get('pages'), dict):
         raise ValueError('Manifest belongs to a different website or is malformed.')
     for path, digest in manifest['pages'].items():
-        if path and not re.fullmatch(r'(?:[a-z0-9]+(?:-[a-z0-9]+)*/)+', path):
+        if path and not re.fullmatch(r'(?:[a-z0-9]+(?:-[a-z0-9]+)*/)+|assets/cureus-[0-9]+\.pdf', path):
             raise ValueError('Manifest contains an invalid path.')
         if not re.fullmatch(r'[a-f0-9]{64}', digest):
             raise ValueError('Manifest contains an invalid content hash.')
